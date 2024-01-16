@@ -1,26 +1,46 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import React, { useState, useEffect } from 'react'
+import axios from 'axios'
+import { QuoteContainer, QuoteBtn, Wrapper, P, Title } from './styledComponents'
+import GlobalStyle from './global'
 
-function App() {
+const App: React.FC = () => {
+  const [quote, setQuote] = useState<string>('')
+  const [loading, setLoading] = useState<boolean>(true)
+
+  const fetchQuote = async () => {
+    try {
+      setLoading(true)
+      const response = await axios.get('https://api.quotable.io/random')
+      setQuote(response.data.content)
+    } catch (error) {
+      console.error('Error while fetching the quote: ', error)
+    } finally {
+      setTimeout(() => {
+        setLoading(false)
+      }, 2000)
+    }
+  }
+
+  useEffect(() => {
+    fetchQuote()
+  }, [])
+
+  const generateQuote = () => {
+    fetchQuote()
+  }
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
+    <>
+      <GlobalStyle />
+      <Title>Daily Quote</Title>
+      <Wrapper>
+        <QuoteContainer>
+          {loading ? <p>Loading...</p> : <P>{quote}</P>}
+        </QuoteContainer>
+      </Wrapper>
+      <QuoteBtn onClick={generateQuote}>Generate new quote</QuoteBtn>
+    </>
+  )
 }
 
-export default App;
+export default App
